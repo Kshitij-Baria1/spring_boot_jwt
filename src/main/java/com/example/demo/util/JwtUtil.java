@@ -1,6 +1,5 @@
 package com.example.demo.util;
 
-import com.example.demo.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -14,53 +13,58 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
-    private String secretKey = "your_very_secure_secret_key_for_the_demo_application";
-    private long expirationTime = 1000 * 60 * 60; // 1 hour
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
+    private static final String secretKey = "your_very_secure_secret_key_for_the_demo_application";
 
-    private SecretKey getSecretKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(UserDetails user) {
+    public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
-                .subject(user.getUsername())
-                .claim("roles", user.getAuthorities())  // This can be a list of role names
+                .subject(userDetails.getUsername())
+                .claim("roles", userDetails.getAuthorities())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(getSecretKey())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    private Claims getClaims(String token) {
+    private Claims parseToken(String token) {
         return Jwts.parser()
-                .verifyWith(getSecretKey())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    public String extractUsername(String token) {
-        return getClaims(token).getSubject();
+    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
+        return claimResolver.apply(parseToken(token));
     }
 
-    public Collection<GrantedAuthority> getAuthorities(String token) {
-        List<String> roles = (List<String>) getClaims(token).get("roles");
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        List<String> roles = (List<String>) extractClaim(token, claims -> claims.get("roles"));
         return roles.stream()
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean isTokenExpired(String token) {
-        return getClaims(token).getExpiration().before(new Date());
+        return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
     public boolean isTokenValid(String token, String username) {
-        return getClaims(token).getSubject().equals(username) && !isTokenExpired(token);
+        return extractUsername(token).equals(username) && !isTokenExpired(token);
     }
-}
 
+}

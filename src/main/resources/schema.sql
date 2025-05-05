@@ -1,21 +1,21 @@
--- Create Role table
-CREATE TABLE "role" (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
+-- role table
+create table "role" (
+    id bigint auto_increment primary key,
+    name varchar(64) not null unique
 );
 
--- Create User table
-CREATE TABLE "user" (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
+-- user table
+create table "user" (
+    id bigint auto_increment primary key,
+    username varchar(64) not null unique,
+    password varchar(64) not null
 );
 
--- Create a many-to-many relationship table between Users and Roles
-CREATE TABLE user_roles (
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES "user"(id),
-    FOREIGN KEY (role_id) REFERENCES "role"(id)
+-- many to many relation between user and roles
+create table "user_roles" (
+    user_id bigint not null,
+    role_id bigint not null,
+    primary key (user_id, role_id),
+    foreign key (user_id) references "user"(id),
+    foreign key (role_id) references "role"(id)
 );

@@ -1,10 +1,12 @@
--- Insert Roles
-INSERT INTO "role" (name) VALUES ('ROLE_ADMIN');
-INSERT INTO "role" (name) VALUES ('ROLE_USER');
+-- insert roles
+insert into "role" (name) values ('ROLE_USER');
+insert into "role" (name) values ('ROLE_ADMIN');
 
--- Insert User
-INSERT INTO "user" (username, password) VALUES ('admin', '$2a$12$TlFErZWE/QVeyGzo/ORWzODTkbMEnDXGHWMCsD71aizEoPkwAibGS'); -- In a real app, store hashed passwords
+-- insert users
+insert into "user" (username, password) values ('user', '$2a$12$mOcjPbQnteoDALNEVowbweb1m/FKdCDsGJxcXGyfuhtGx41vaB1K2');
+insert into "user" (username, password) values ('admin', '$2a$12$mOcjPbQnteoDALNEVowbweb1m/FKdCDsGJxcXGyfuhtGx41vaB1K2');
 
--- Assign Roles to the User
-INSERT INTO user_roles (user_id, role_id) VALUES (1, 1); -- Assign ROLE_ADMIN to User 1
-INSERT INTO user_roles (user_id, role_id) VALUES (1, 2); -- Assign ROLE_USER to User 1
+-- assign roles to users
+insert into "user_roles" values (1, 1);
+insert into "user_roles" values (2, 1);
+insert into "user_roles" values (2, 2);

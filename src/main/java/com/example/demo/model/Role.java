@@ -1,24 +1,17 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name = "\"role\"")
-public class Role implements GrantedAuthority {
+public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
 
-    @Override
-    public String getAuthority() {
-        return name;  // e.g., "ROLE_USER"
-    }
-
-    // Getters and setters
-
+    // getters and setters
     public Long getId() {
         return id;
     }

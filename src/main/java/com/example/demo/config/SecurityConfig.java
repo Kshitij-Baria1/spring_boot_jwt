@@ -2,12 +2,12 @@ package com.example.demo.config;
 
 import com.example.demo.filter.JwtAuthenticationFilter;
 import com.example.demo.security.JwtAuthenticationProvider;
+import com.example.demo.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,6 +24,9 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,8 +53,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration c) throws Exception {
-        return c.getAuthenticationManager();
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
+        JwtAuthenticationProvider jwtAuthenticationProvider = new JwtAuthenticationProvider();
+        jwtAuthenticationProvider.setCustomUserDetailsService(customUserDetailsService);
+        jwtAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return jwtAuthenticationProvider;
     }
-}
 
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .authenticationProvider(jwtAuthenticationProvider())
+                .build();
+    }
+
+}
