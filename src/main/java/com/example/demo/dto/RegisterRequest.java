@@ -1,11 +1,12 @@
 package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-public class AuthRequest {
-    @NotBlank(message = "Username is required")
+public class RegisterRequest {
+    @NotBlank(message = "User name is required")
     private String username;
-    @NotBlank(message = "password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     public String getUsername() {

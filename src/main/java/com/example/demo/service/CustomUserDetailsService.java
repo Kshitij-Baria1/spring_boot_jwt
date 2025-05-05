@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.UsernameAlreadyExistsException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,16 @@ public class CustomUserDetailsService implements UserDetailsService {
                         .map(role -> new SimpleGrantedAuthority(role.getName()))
                         .toList()
         );
+    }
+
+    public void createUser(String username, String password) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        userRepository.save(user);
     }
 }
